@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Autonomous Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">JESUIT Blue Jays</p>
+        <h1>Custom Autonomous Workspace</h1>
+        <p class="hero-text">
+          Pull options from the bank into the workspace.
+        </p>
+      </div>
+      <div class="hero-panel">
+        <div class="status-card">
+          <span class="status-label">Current Workspace</span>
+          <strong id="sequenceCount">0 Blocks</strong>
+        </div>
+        <div id="socketStatus" class="socket-status socket-status-connecting" aria-live="polite">
+          <span class="socket-status-dot" aria-hidden="true"></span>
+          <span class="socket-status-copy">
+            <span class="socket-status-label">WebSocket</span>
+            <strong id="socketStatusText">Connecting</strong>
+          </span>
+        </div>
+        <div class="hero-actions">
+          <div class="submission-name-field">
+            <div class="submission-name-header">
+              <label class="submission-name-label" for="autonomousNameInput">Autonomous Name</label>
+              <div class="submission-name-actions">
+                <button id="copyAutoStringButton" class="submission-copy-button" type="button">Copy</button>
+                <button
+                  id="nameLockButton"
+                  class="name-lock-button"
+                  type="button"
+                  aria-pressed="false"
+                  title="Lock name on reset"
+                >
+                  Unlock
+                </button>
+              </div>
+            </div>
+            <input
+              id="autonomousNameInput"
+              class="submission-name-input"
+              type="text"
+              placeholder="Enter a name"
+              autocomplete="off"
+            >
+          </div>
+          <button id="submitButton" class="primary-button" type="button">Submit Sequence</button>
+          <button id="editSavedAutosButton" class="ghost-button" type="button">Edit Saved Autos</button>
+          <button id="resetButton" class="ghost-button" type="button">Reset Workspace</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="board board-grid">
+      <div class="panel">
+        <div class="board-header">
+          <div>
+            <p class="section-label">Block Bank</p>
+            <h2>Available Options</h2>
+          </div>
+          <p class="board-tip">Drag from here into the workspace.</p>
+        </div>
+
+        <input
+          id="blockSearchInput"
+          class="bank-search-input"
+          type="text"
+          placeholder="Search blocks"
+          autocomplete="off"
+          aria-label="Search block bank"
+        >
+        <div id="bankList" class="bank-list" aria-label="Block bank"></div>
+      </div>
+
+      <div class="panel workspace-panel">
+        <div class="board-header">
+          <div>
+            <p class="section-label">Interactive Builder</p>
+            <h2>Workspace</h2>
+          </div>
+          <p class="board-tip">Drop blocks here and stack them into sequence.</p>
+        </div>
+
+        <div class="workspace-start-control" aria-label="Start distance selection">
+          <span class="workspace-start-label">Start Position</span>
+          <div class="workspace-start-toggle" role="group" aria-label="Choose a start position">
+            <button
+              id="startCloseButton"
+              class="start-option is-active"
+              type="button"
+              data-start-mode="close"
+              aria-pressed="true"
+            >
+              Start Close
+            </button>
+            <button
+              id="startFarButton"
+              class="start-option"
+              type="button"
+              data-start-mode="far"
+              aria-pressed="false"
+            >
+              Start Far
+            </button>
+          </div>
+        </div>
+
+        <div id="workspaceDropzone" class="workspace-dropzone">
+          <div id="workspaceList" class="workspace-list" aria-label="Sequence workspace"></div>
+          <div id="workspaceEmpty" class="workspace-empty">
+            <strong>Drop blocks here</strong>
+            <span>They will snap together into one connected sequence.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="board">
+      <div class="board-header">
+        <div>
+          <p class="section-label">How It Works</p>
+          <h2>Build Your Flow</h2>
+        </div>
+      </div>
+      <p class="helper-copy">
+        Once a block is in the workspace, you can drag it higher or lower to change the order and use the remove
+        action to send it back out.
+      </p>
+      <div id="submissionResult" class="submission-result" hidden aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div id="savedAutosModal" class="saved-autos-modal" hidden>
+    <div id="savedAutosBackdrop" class="saved-autos-backdrop"></div>
+    <section class="saved-autos-panel" role="dialog" aria-modal="true" aria-labelledby="savedAutosTitle">
+      <div class="saved-autos-header">
+        <div>
+          <p class="section-label">Saved Autos</p>
+          <h2 id="savedAutosTitle">Choose an Autonomous</h2>
+        </div>
+        <button id="closeSavedAutosButton" class="ghost-button saved-autos-close" type="button">Close</button>
+      </div>
+      <p id="savedAutosStatus" class="saved-autos-status">Requesting saved autonomous files from the robot...</p>
+      <div id="savedAutosList" class="saved-autos-list" aria-live="polite"></div>
+      <input type="text" id="newAutoInput" class="new-auto-input" placeholder="Auto String" autocomplete="off">
+      <button id="saveNewAutoButton" class="primary-button" type="button">Submit</button>
+    </section>
+  </div>
+
+  <template id="blockTemplate">
+    <article class="sequence-block" draggable="true">
+      <div class="block-index"></div>
+      <div class="block-copy">
+        <h3 class="block-title"></h3>
+        <p class="block-description"></p>
+      </div>
+      <div class="block-actions">
+        <button class="move-button" type="button" data-action="add">Add</button>
+        <button class="move-button" type="button" data-action="up" aria-label="Move block up">↑</button>
+        <button class="move-button" type="button" data-action="down" aria-label="Move block down">↓</button>
+        <button class="move-button" type="button" data-action="remove">Remove</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="./app.js"></script>
+</body>
+</html>
