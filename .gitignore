@@ -1,2 +1,9 @@
 /Index(Consolidated).html
 /spindexer_paddle_v2_axon.3mf.3mf
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
